@@ -4,6 +4,7 @@ using System.Linq;
 using TShockAPI;
 using TShockAPI.DB;
 using Terraria;
+using Microsoft.Xna.Framework;
 
 namespace HousingDistricts
 {

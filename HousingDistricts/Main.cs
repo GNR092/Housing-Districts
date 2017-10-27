@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Timers;
 using System.Linq;
@@ -9,10 +10,12 @@ using TShockAPI;
 using TShockAPI.DB;
 using System.IO;
 using System.Reflection;
+using Microsoft.Xna.Framework;
+using Terraria.Utilities;
 
 namespace HousingDistricts
 {
-    [ApiVersion(1, 24)]
+    [ApiVersion(2, 1)]
     public class HousingDistricts : TerrariaPlugin
     {
 		public static HConfigFile HConfig { get { return HConfigFile.Config; } }
@@ -26,7 +29,7 @@ namespace HousingDistricts
 
 		public override string Author
 		{
-			get { return "Twitchy, Dingo, radishes, CoderCow and Simon311"; }
+			get { return "Twitchy, Dingo, radishes, CoderCow and Simon311, Update for GNR092" ; }
 		}
 
 		public override string Description
@@ -174,7 +177,7 @@ namespace HousingDistricts
 			if (ULock) return;
 			ULock = true;
 			var Start = DateTime.Now;
-			if (Main.rand == null) Main.rand = new Random();
+			if (Main.rand == null) Main.rand = new UnifiedRandom();
 			lock (HPlayers)
 			{
 				var I = HousingDistricts.HPlayers.Count;
@@ -186,7 +189,7 @@ namespace HousingDistricts
 					int HousesNotIn = 0;
 					try
 					{
-						House.UpdateAction((house) =>
+						House.UpdateAction((Action<House>)(house =>
 						{
 							if (UTimeout(Start)) return;
 							try
@@ -246,7 +249,7 @@ namespace HousingDistricts
 							{
 								TShock.Log.Error(ex.ToString());
 							}
-						});
+						}));
 					}
 					catch (Exception ex)
 					{

@@ -4,6 +4,7 @@ using System.IO;
 using Terraria;
 using TShockAPI;
 using System.IO.Streams;
+using Microsoft.Xna.Framework;
 
 namespace HousingDistricts
 {
@@ -76,7 +77,7 @@ namespace HousingDistricts
 				//lock (HousingDistricts.HPlayers)
 				{
 					var rect = new Rectangle(tilex, tiley, size, size);
-					return House.HandlerAction((house) =>
+					return House.HandlerAction((Func<House,bool>)(house =>
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && house.HouseArea.Intersects(rect))
@@ -86,7 +87,7 @@ namespace HousingDistricts
 								return true;
 							}
 						return false;
-					});
+					}));
 				}
 			}
 			return false;
