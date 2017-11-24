@@ -37,7 +37,6 @@ namespace HousingDistricts
 			{
 				{PacketTypes.Tile, HandleTile},
 				{PacketTypes.TileSendSquare, HandleSendTileSquare},
-				{PacketTypes.TileKill, HandleChest},
 				{PacketTypes.LiquidSet, HandleLiquidSet},
 				{PacketTypes.Teleport, HandleTeleport},
 				{PacketTypes.PaintTile, HandlePaintTile},
@@ -192,37 +191,35 @@ namespace HousingDistricts
 			args.Data.ReadInt8();
 			int x = args.Data.ReadInt16();
 			int y = args.Data.ReadInt16();
-			//short tiletype = args.Data.ReadInt16();
 
-			var player = HTools.GetPlayerByID(args.Player.Index);
 
-			if (player.AwaitingHouseName)
-			{
-				if (HTools.InAreaHouseName(x, y) == null)
-					args.Player.SendMessage("Tile is not in any House", Color.Yellow);
-				else
-					args.Player.SendMessage("House Name: " + HTools.InAreaHouseName(x, y), Color.Yellow);
+            #region AwaitingTempPoint
+            if (args.Player.AwaitingTempPoint > 0)
+            {
+                args.Player.TempPoints[args.Player.AwaitingTempPoint - 1].X = x;
+                args.Player.TempPoints[args.Player.AwaitingTempPoint - 1].Y = y;
 
-				args.Player.SendTileSquare(x, y);
-				player.AwaitingHouseName = false;
-				return true;
-			}
+                if (args.Player.AwaitingTempPoint == 1)
+                {
+                    args.Player.SendMessage("¡Se ha configurado la esquina superior izquierda del área de protección!", Color.Yellow);
+                    args.Player.SendTileSquare(x, y);
+                    args.Player.AwaitingTempPoint = 2;
+                    args.Player.SendMessage("Ahora toca el bloque INFERIOR-DERECHA del área que se va a proteger.", Color.Aquamarine);
+                    return true;
+                }
 
-			if (args.Player.AwaitingTempPoint > 0)
-			{
-				args.Player.TempPoints[args.Player.AwaitingTempPoint - 1].X = x;
-				args.Player.TempPoints[args.Player.AwaitingTempPoint - 1].Y = y;
+                if (args.Player.AwaitingTempPoint == 2)
+                {
+                    args.Player.SendMessage("¡Se ha configurado la esquina inferior derecha del área de protección!", Color.Yellow);
+                    args.Player.SendMessage("Ahora use /house add [nombre de la casa] para crearla y estar protegido", Color.Aquamarine);
+                    args.Player.SendMessage("Ejemplo /house add casa de" + args.Player.Name, Color.Aquamarine);
+                    args.Player.SendTileSquare(x, y);
+                    args.Player.AwaitingTempPoint = 0;
+                    return true;
+                }
 
-				if (args.Player.AwaitingTempPoint == 1)
-					args.Player.SendMessage("Top-left corner of protection area has been set!", Color.Yellow);
-
-				if (args.Player.AwaitingTempPoint == 2)
-					args.Player.SendMessage("Bottom-right corner of protection area has been set!", Color.Yellow);
-
-				args.Player.SendTileSquare(x, y);
-				args.Player.AwaitingTempPoint = 0;
-				return true;
-			}
+            }
+            #endregion
 			if (!args.Player.Group.HasPermission(EditHouse))
 			{
 				//lock (HousingDistricts.HPlayers)
@@ -372,64 +369,6 @@ namespace HousingDistricts
 			return false;
 		}
 
-		private static bool HandleChest(GetDataHandlerArgs args)
-		{
-			var Start = DateTime.Now;
-
-			int action = args.Data.ReadByte();
-			int X = args.Data.ReadInt16();
-			int Y = args.Data.ReadInt16();
-
-			var player = HTools.GetPlayerByID(args.Player.Index);
-
-			/*
-			if (player.AwaitingHouseName)
-			{
-				if (HTools.InAreaHouseName(x, y) == null)
-					args.Player.SendMessage("Tile is not in any House", Color.Yellow);
-				else
-					args.Player.SendMessage("House Name: " + HTools.InAreaHouseName(x, y), Color.Yellow);
-
-				args.Player.SendTileSquare(x, y);
-				player.AwaitingHouseName = false;
-				return true;
-			}
-
-			if (args.Player.AwaitingTempPoint > 0)
-			{
-				args.Player.TempPoints[args.Player.AwaitingTempPoint - 1].X = x;
-				args.Player.TempPoints[args.Player.AwaitingTempPoint - 1].Y = y;
-				if (args.Player.AwaitingTempPoint == 1)
-					args.Player.SendMessage("Top-left corner of protection area has been set!", Color.Yellow);
-
-				if (args.Player.AwaitingTempPoint == 2)
-					args.Player.SendMessage("Bottom-right corner of protection area has been set!", Color.Yellow);
-
-				args.Player.SendTileSquare(x, y);
-				args.Player.AwaitingTempPoint = 0;
-				return true;
-			}
-			*/
-
-			if (!args.Player.Group.HasPermission(EditHouse))
-			{
-				//lock (HousingDistricts.HPlayers)
-				{
-					var rect = new Rectangle(X, Y, 1, 1);
-					return House.HandlerAction((house) =>
-					{
-						if (HousingDistricts.Timeout(Start)) return false;
-						if (house != null && house.HouseArea.Intersects(rect))
-							if (!HTools.OwnsHouse(args.Player.User, house))
-							{
-								args.Player.SendTileSquare(X, Y);
-								return true;
-							}
-						return false;
-					});
-				}
-			}
-			return false;
-		}
+		
 	}
 }

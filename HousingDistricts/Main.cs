@@ -12,6 +12,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Terraria.Utilities;
+using TClassExtended;
 
 namespace HousingDistricts
 {
@@ -21,6 +22,8 @@ namespace HousingDistricts
 		public static HConfigFile HConfig { get { return HConfigFile.Config; } }
 		public static List<House> Houses = new List<House>();
 		public static List<HPlayer> HPlayers = new List<HPlayer>();
+        internal static bool TClases = false;
+        internal static Config config;
 
 		public override string Name
 		{
@@ -42,7 +45,7 @@ namespace HousingDistricts
 			get { return Assembly.GetExecutingAssembly().GetName().Version; }
 		}
 
-		// Note: Do NOT replace for, its faster for Lists than Foreach (or Linq, huh). Yes, there are studies proving that. No, there is no such difference for arrays.
+        // Note: NO reemplace, es más rápido para las Listas que para Foreach (o Linq, huh). Sí, hay estudios que lo demuestran. No, no hay tal diferencia para las matrices.
 
 		internal static bool URunning = false;
 		public static bool ULock = false;
@@ -51,6 +54,7 @@ namespace HousingDistricts
 
 		public override void Initialize()
 		{
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 			HConfigFile.ForceLoad();
 
 			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize, -5);
@@ -67,6 +71,21 @@ namespace HousingDistricts
 				URunning = true;
 			}
 		}
+
+        Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            string dllName = args.Name.Contains(",") ? args.Name.Substring(0, args.Name.IndexOf(',')) : args.Name.Replace(".dll", "");
+
+            dllName = dllName.Replace(".", "_");
+
+            if (dllName.EndsWith("_resources")) return null;
+
+            System.Resources.ResourceManager rm = new System.Resources.ResourceManager(Assembly.GetExecutingAssembly().GetName().Name + ".Properties.Resources", Assembly.GetExecutingAssembly());
+
+            byte[] bytes = (byte[])rm.GetObject(dllName);
+
+            return Assembly.Load(bytes);
+        }
 
 		protected override void Dispose(bool disposing)
 		{
@@ -120,6 +139,7 @@ namespace HousingDistricts
 				TShock.Groups.AddPermissions("trustedadmin", trustedperm);
 				TShock.Groups.AddPermissions("default", defaultperm);
 			}
+            
 
 			var table = new SqlTable("HousingDistrict",
 				new SqlColumn("ID", MySqlDbType.Int32) { Primary = true, AutoIncrement = true },
@@ -134,10 +154,9 @@ namespace HousingDistricts
 				new SqlColumn("ChatEnabled", MySqlDbType.Int32),
 				new SqlColumn("Visitors", MySqlDbType.Text)
 			);
-
 			var SQLWriter = new SqlTableCreator(TShock.DB, TShock.DB.GetSqlType() == SqlType.Sqlite ? (IQueryBuilder)new SqliteQueryCreator() : new MysqlQueryCreator());
 			SQLWriter.EnsureTableStructure(table);
-			
+           
 			#endregion
 
 			List<string> perms = new List<string>();
@@ -169,6 +188,20 @@ namespace HousingDistricts
 				Houses.Add(new House(new Rectangle(reader.Get<int>("TopX"), reader.Get<int>("TopY"), reader.Get<int>("BottomX"), reader.Get<int>("BottomY")),
 					owners, id, reader.Get<string>("Name"), locked, chatenabled, visitors));
 			}
+
+            //Verifique si el ensamblado del complemento del mapa se ha cargado.
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            Assembly[] assems = currentDomain.GetAssemblies();
+           
+            foreach (Assembly a in assems)
+            {
+                if (a.FullName.Contains("TClases"))
+                {
+                    TShock.Log.Info("<HousingDistricts> Found TClases Plugin.");
+                    TClases = true;
+                    config = Config.Read(Config.path);
+                }
+            }
 		}
 
 		public void OnUpdate(object sender, ElapsedEventArgs e)
@@ -201,7 +234,7 @@ namespace HousingDistricts
 										if (!HTools.CanVisitHouse(player.TSPlayer.User, house))
 										{
 											player.TSPlayer.Teleport((int)player.LastTilePos.X * 16, (int)player.LastTilePos.Y * 16);
-											player.TSPlayer.SendMessage("House: '" + house.Name + "' Is locked", Color.LightSeaGreen);
+                                            player.TSPlayer.SendMessage("Casa: '" + house.Name + "' Está bloqueado", Color.LightSeaGreen);
 										}
 										else
 										{

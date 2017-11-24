@@ -11,6 +11,7 @@ namespace HousingDistricts
 	public class HouseManager
 	{
 		const string cols = "Name, TopX, TopY, BottomX, BottomY, Owners, WorldID, Locked, ChatEnabled, Visitors";
+
 		public static bool AddHouse(int tx, int ty, int width, int height, string housename, string owner, int locked, int chatenabled)
 		{
 			if (HTools.GetHouseByName(housename) != null)
