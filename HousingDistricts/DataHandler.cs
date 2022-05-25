@@ -27,8 +27,8 @@ namespace HousingDistricts
 	}
 	public static class GetDataHandlers
 	{
-		static string EditHouse = "house.edit";
-		static string TPHouse = "house.rod";
+		static readonly string EditHouse = "house.edit";
+		static readonly string TPHouse = "house.rod";
 		private static Dictionary<PacketTypes, GetDataHandlerDelegate> GetDataHandlerDelegates;
 
 		public static void InitGetDataHandler()
@@ -80,9 +80,10 @@ namespace HousingDistricts
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && house.HouseArea.Intersects(rect))
-							if (!HTools.OwnsHouse(args.Player.User, house))
+							if (!HTools.OwnsHouse(args.Player.Account, house))
 							{
-								args.Player.SendTileSquare(tilex, tiley);
+								//args.Player.SendTileSquare(tilex, tiley);
+								args.Player.SendTileSquareCentered(tilex, tiley);
 								return true;
 							}
 						return false;
@@ -113,7 +114,7 @@ namespace HousingDistricts
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && house.HouseArea.Intersects(rect))
-							if (!HTools.CanVisitHouse(args.Player.User, house))
+							if (!HTools.CanVisitHouse(args.Player.Account, house))
 							{
 								args.Player.SendErrorMessage(string.Format("You do not have permission to teleport into house '{0}'.", house.Name));
 								args.Player.Teleport(args.TPlayer.position.X, args.TPlayer.position.Y);
@@ -143,7 +144,7 @@ namespace HousingDistricts
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && house.HouseArea.Intersects(rect))
-							if (!HTools.OwnsHouse(args.Player.User, house))
+							if (!HTools.OwnsHouse(args.Player.Account, house))
 							{
 								args.Player.SendData(PacketTypes.PaintTile, "", X, Y, Main.tile[X, Y].color());
 								return true;
@@ -172,7 +173,7 @@ namespace HousingDistricts
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && house.HouseArea.Intersects(rect))
-							if (!HTools.OwnsHouse(args.Player.User, house))
+							if (!HTools.OwnsHouse(args.Player.Account, house))
 							{
 								args.Player.SendData(PacketTypes.PaintWall, "", X, Y, Main.tile[X, Y].wallColor());
 								return true;
@@ -202,7 +203,7 @@ namespace HousingDistricts
                 if (args.Player.AwaitingTempPoint == 1)
                 {
                     args.Player.SendMessage("¡Se ha configurado la esquina superior izquierda del área de protección!", Color.Yellow);
-                    args.Player.SendTileSquare(x, y);
+                    args.Player.SendTileSquareCentered(x, y);
                     args.Player.AwaitingTempPoint = 2;
                     args.Player.SendMessage("Ahora toca el bloque INFERIOR-DERECHA del área que se va a proteger.", Color.Aquamarine);
                     return true;
@@ -212,8 +213,8 @@ namespace HousingDistricts
                 {
                     args.Player.SendMessage("¡Se ha configurado la esquina inferior derecha del área de protección!", Color.Yellow);
                     args.Player.SendMessage("Ahora use /house add [nombre de la casa] para crearla y estar protegido", Color.Aquamarine);
-                    args.Player.SendMessage("Ejemplo /house add casa de" + args.Player.Name, Color.Aquamarine);
-                    args.Player.SendTileSquare(x, y);
+                    args.Player.SendMessage("Ejemplo /house add casa de " + args.Player.Name, Color.Aquamarine);
+                    args.Player.SendTileSquareCentered(x, y);
                     args.Player.AwaitingTempPoint = 0;
                     return true;
                 }
@@ -229,9 +230,9 @@ namespace HousingDistricts
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && house.HouseArea.Intersects(rect))
-							if (!HTools.OwnsHouse(args.Player.User, house))
+							if (!HTools.OwnsHouse(args.Player.Account, house))
 							{
-								args.Player.SendTileSquare(x, y);
+								args.Player.SendTileSquareCentered(x, y);
 								return true;
 							}
 						return false;
@@ -274,7 +275,7 @@ namespace HousingDistricts
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && (house.HouseArea.Intersects(A) || house.HouseArea.Intersects(B)))
-							if (!HTools.OwnsHouse(args.Player.User, house))
+							if (!HTools.OwnsHouse(args.Player.Account, house))
 								return true;
 						return false;
 					});
@@ -300,7 +301,8 @@ namespace HousingDistricts
 				else
 					args.Player.SendMessage("House Name: " + HTools.InAreaHouseName(x, y), Color.Yellow);
 
-				args.Player.SendTileSquare(x, y);
+				//args.Player.SendTileSquare(x, y);
+				args.Player.SendTileSquareCentered(x, y);
 				player.AwaitingHouseName = false;
 				return true;
 			}
@@ -316,7 +318,8 @@ namespace HousingDistricts
 				if (args.Player.AwaitingTempPoint == 2)
 					args.Player.SendMessage("Bottom-right corner of protection area has been set!", Color.Yellow);
 
-				args.Player.SendTileSquare(x, y);
+				//args.Player.SendTileSquare(x, y);
+				args.Player.SendTileSquareCentered(x, y);
 				args.Player.AwaitingTempPoint = 0;
 				return true;
 			}
@@ -329,9 +332,9 @@ namespace HousingDistricts
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && house.HouseArea.Intersects(rect))
-							if (!HTools.OwnsHouse(args.Player.User, house))
+							if (!HTools.OwnsHouse(args.Player.Account, house))
 							{
-								args.Player.SendTileSquare(x, y);
+								args.Player.SendTileSquareCentered(x, y);
 								return true;
 							}
 						return false;
@@ -357,9 +360,9 @@ namespace HousingDistricts
 					{
 						if (HousingDistricts.Timeout(Start)) return false;
 						if (house != null && house.HouseArea.Intersects(rect))
-							if (!HTools.OwnsHouse(args.Player.User, house))
+							if (!HTools.OwnsHouse(args.Player.Account, house))
 							{
-								args.Player.SendTileSquare(X, Y);
+								args.Player.SendTileSquareCentered(X, Y);
 								return true;
 							}
 						return false;

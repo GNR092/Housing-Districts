@@ -59,29 +59,29 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Data.Sqlite">
+      <HintPath>Refs\Mono.Data.Sqlite.dll</HintPath>
+    </Reference>
     <Reference Include="MySql.Data">
-      <HintPath>..\..\..\Tshock\ServerPlugins\MySql.Data.dll</HintPath>
+      <HintPath>Refs\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\Tshock\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>Refs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OTAPI">
-      <HintPath>..\..\..\Tshock\OTAPI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>Refs\OTAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="TClassExtended">
-      <HintPath>..\..\..\..\Users\GNRC\Documentos\GitHub\TClassExtended\bin\Release\TClassExtended.dll</HintPath>
+    <Reference Include="TClassExtended, Version=1.0.6536.32873, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Resources\TClassExtended.dll</HintPath>
     </Reference>
     <Reference Include="TerrariaServer">
-      <HintPath>..\..\..\Tshock\TerrariaServer.exe</HintPath>
-      <Private>False</Private>
+      <HintPath>Refs\TerrariaServer.exe</HintPath>
     </Reference>
     <Reference Include="TShockAPI">
-      <HintPath>..\..\..\Tshock\ServerPlugins\TShockAPI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>Refs\TShockAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -105,10 +105,11 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\TClassExtended.dll" />
+    <Content Include="Resources\TClassExtended.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -55,18 +55,18 @@ namespace HousingDistricts
 		public static void BroadcastToHouseOwners(House house, string text)
 		{
 			foreach (TSPlayer player in TShock.Players)
-				if (player != null && player.User != null && house.Owners.Contains(player.User.ID.ToString()))
+				if (player != null && player.Account != null && house.Owners.Contains(player.Account.ID.ToString()))
 						player.SendMessage(text, Color.LightSeaGreen);
 		}
 
-		public static bool OwnsHouse(User U, string housename)
+		public static bool OwnsHouse(UserAccount U, string housename)
 		{
 			if (U == null)
 				return false;
 			return OwnsHouse(U.ID.ToString(), housename);
 		}
 
-		public static bool OwnsHouse(User U, House house)
+		public static bool OwnsHouse(UserAccount U, House house)
 		{
 			if (U == null)
 				return false;
@@ -84,7 +84,7 @@ namespace HousingDistricts
 		public static bool OwnsHouse(string UserID, House house)
 		{
 			bool isAdmin = false;
-			try { isAdmin = TShock.Groups.GetGroupByName(TShock.Users.GetUserByID(Convert.ToInt32(UserID)).Group).HasPermission("house.root"); }
+			try { isAdmin = TShock.Groups.GetGroupByName(TShock.UserAccounts.GetUserAccountByID(Convert.ToInt32(UserID)).Group).HasPermission("house.root"); }
 			catch {}
 			if (!String.IsNullOrEmpty(UserID) && UserID != "0" && house != null)
 			{
@@ -107,7 +107,7 @@ namespace HousingDistricts
 			return (!String.IsNullOrEmpty(UserID) && UserID != "0") && (house.Visitors.Contains(UserID) || house.Owners.Contains(UserID)); 
 		}
 
-		public static bool CanVisitHouse(User U, House house)
+		public static bool CanVisitHouse(UserAccount U, House house)
 		{
 			return (U != null && U.ID != 0) && (house.Visitors.Contains(U.ID.ToString()) || house.Owners.Contains(U.ID.ToString()));
 		}

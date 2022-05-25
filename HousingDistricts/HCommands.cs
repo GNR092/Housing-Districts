@@ -50,7 +50,7 @@ namespace HousingDistricts
                         ply.SendErrorMessage("¡No tienes permiso para usar este comando!");
                         return;
                     }
-                    if (!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0)
+                    if (!ply.IsLoggedIn || ply.Account == null || ply.Account.ID == 0)
                     {
                         ply.SendErrorMessage("Debes iniciar sesión para usar House Protection.");
                         return;
@@ -68,7 +68,7 @@ namespace HousingDistricts
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
                         }
-                        if (!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0)
+                        if (!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0)
                         {
                             ply.SendErrorMessage("You must log-in to use House Protection.");
                             return;
@@ -80,7 +80,7 @@ namespace HousingDistricts
                             for (int i = 0; i < HousingDistricts.Houses.Count; i++)
                             {
                                 var house = HousingDistricts.Houses[i];
-                                if (HTools.OwnsHouse(ply.User, house))
+                                if (HTools.OwnsHouse(ply.Account, house))
                                     userOwnedHouses.Add(house.ID);
                             }
                             if (userOwnedHouses.Count < maxHouses || ply.Group.HasPermission("house.bypasscount"))
@@ -126,13 +126,13 @@ namespace HousingDistricts
                                                 return;
                                             }
                                         }
-                                        if (HouseManager.AddHouse(x, y, width, height, houseName, ply.User.ID.ToString(), 0, 0))
+                                        if (HouseManager.AddHouse(x, y, width, height, houseName,ply.Account.ID.ToString(), 0, 0))
                                         {
                                             ply.TempPoints[0] = Point.Zero;
                                             ply.TempPoints[1] = Point.Zero;
                                             ply.SendMessage("Has creado una nueva casa " + houseName, Color.Yellow);
-                                            HouseManager.AddNewUser(houseName, ply.User.ID.ToString());
-                                            TShock.Log.ConsoleInfo("{0} ha creado una nueva casa: \"{1}\".", ply.User.Name, houseName);
+                                            HouseManager.AddNewUser(houseName,ply.Account.ID.ToString());
+                                            TShock.Log.ConsoleInfo("{0} ha creado una nueva casa: \"{1}\".",ply.Account.Name, houseName);
                                         }
                                         else
                                         {
@@ -184,7 +184,7 @@ namespace HousingDistricts
                         ply.SendErrorMessage("¡No tienes permiso para usar este comando!");
                         return;
                     }
-                    if ((!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0) && ply.RealPlayer)
+                    if ((!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0) && ply.RealPlayer)
                     {
                         ply.SendErrorMessage("Debe iniciar sesión para usar House Protection.");
                         return;
@@ -192,7 +192,7 @@ namespace HousingDistricts
                     if (args.Parameters.Count > 1)
                     {
                         string playerName = args.Parameters[1];
-                        var p = TShock.Utils.FindPlayer(playerName);
+                        var p = TSPlayer.FindByNameOrID(playerName);
                         var playerID = p[0];
                         var house = ply.InAreaHouse();
 
@@ -203,10 +203,10 @@ namespace HousingDistricts
                             {
                                 if (!playerID.OwnsHouse())
                                 {
-                                    if (HouseManager.AddNewUser(house.Name, playerID.User.ID.ToString()))
+                                    if (HouseManager.AddNewUser(house.Name, playerID.Account.ID.ToString()))
                                     {
                                         ply.SendMessage("Usuario agregado " + playerID.Name + " a " + house.Name, Color.Yellow);
-                                        TShock.Log.ConsoleInfo("{0} ha permitido {1} a casa: \"{2}\".", ply.User.Name, playerID.Name, house.Name);
+                                        TShock.Log.ConsoleInfo("{0} ha permitido {1} a casa: \"{2}\".",ply.Account.Name, playerID.Name, house.Name);
                                     }
                                     else
                                         ply.SendErrorMessage("Error al agregar usuario.");
@@ -237,7 +237,7 @@ namespace HousingDistricts
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
                         }
-                        if ((!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0) && ply.RealPlayer)
+                        if ((!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0) && ply.RealPlayer)
                         {
                             ply.SendErrorMessage("You must log-in to use House Protection.");
                             return;
@@ -245,17 +245,17 @@ namespace HousingDistricts
                         if (args.Parameters.Count > 2)
                         {
                             string playerName = args.Parameters[1];
-                            User playerID;
+                            UserAccount playerID;
                             var house = HTools.GetHouseByName(String.Join(" ", args.Parameters.GetRange(2, args.Parameters.Count - 2)));
                             if (house == null) { ply.SendErrorMessage("¡No hay tal casa!"); return; }
-                            if (HTools.OwnsHouse(ply.User, house.Name) || ply.Group.HasPermission(AdminHouse))
+                            if (HTools.OwnsHouse(ply.Account, house.Name) || ply.Group.HasPermission(AdminHouse))
                             {
-                                if ((playerID = TShock.Users.GetUserByName(playerName)) != null)
+                                if ((playerID = TShock.UserAccounts.GetUserAccountByName(playerName)) != null)
                                 {
                                     if (HouseManager.DeleteUser(house.Name, playerID.ID.ToString()))
                                     {
                                         ply.SendMessage("Deleted user " + playerName + " from " + house.Name, Color.Yellow);
-                                        TShock.Log.ConsoleInfo("{0} has disallowed {1} to house: \"{2}\".", ply.User.Name, playerID.Name, house.Name);
+                                        TShock.Log.ConsoleInfo("{0} has disallowed {1} to house: \"{2}\".",ply.Account.Name, playerID.Name, house.Name);
                                     }
                                     else
                                         ply.SendErrorMessage("Failed to delete user.");
@@ -279,7 +279,7 @@ namespace HousingDistricts
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
                         }
-                        if ((!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0) && ply.RealPlayer)
+                        if ((!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0) && ply.RealPlayer)
                         {
                             ply.SendErrorMessage("You must log-in to use House Protection.");
                             return;
@@ -294,7 +294,7 @@ namespace HousingDistricts
                                 return;
                             }
 
-                            if (HTools.OwnsHouse(ply.User, house.Name) || ply.Group.HasPermission(AdminHouse))
+                            if (HTools.OwnsHouse(ply.Account, house.Name) || ply.Group.HasPermission(AdminHouse))
                             {
                                 try
                                 {
@@ -306,7 +306,7 @@ namespace HousingDistricts
                                 }
                                 HousingDistricts.Houses.Remove(house);
                                 ply.SendMessage("House: " + house.Name + " deleted", Color.Yellow);
-                                TShock.Log.ConsoleInfo("{0} has deleted house: \"{1}\".", ply.User.Name, house.Name);
+                                TShock.Log.ConsoleInfo("{0} has deleted house: \"{1}\".",ply.Account.Name, house.Name);
                                 break;
                             }
                             else
@@ -407,7 +407,7 @@ namespace HousingDistricts
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
                         }
-                        if (!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0)
+                        if (!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0)
                         {
                             ply.SendErrorMessage("You must log-in to use House Protection.");
                             return;
@@ -417,7 +417,7 @@ namespace HousingDistricts
                             if (!ply.TempPoints.Any(p => p == Point.Zero))
                             {
                                 string houseName = String.Join(" ", args.Parameters.GetRange(1, args.Parameters.Count - 1));
-                                if (HTools.OwnsHouse(ply.User, houseName) || ply.Group.HasPermission(AdminHouse))
+                                if (HTools.OwnsHouse(ply.Account, houseName) || ply.Group.HasPermission(AdminHouse))
                                 {
                                     var x = Math.Min(ply.TempPoints[0].X, ply.TempPoints[1].X);
                                     var y = Math.Min(ply.TempPoints[0].Y, ply.TempPoints[1].Y);
@@ -431,7 +431,7 @@ namespace HousingDistricts
                                         for (int i = 0; i < HousingDistricts.Houses.Count; i++)
                                         {
                                             var house = HousingDistricts.Houses[i];
-                                            if ((newHouseR.Intersects(house.HouseArea) && !house.Owners.Contains(ply.User.ID.ToString())) && !HConfigFile.Config.OverlapHouses)
+                                            if ((newHouseR.Intersects(house.HouseArea) && !house.Owners.Contains(ply.Account.ID.ToString())) && !HConfigFile.Config.OverlapHouses)
                                             { // user is allowed to intersect their own house
                                                 ply.SendErrorMessage("Your selected area overlaps another players' house, which is not allowed.");
                                                 return;
@@ -499,7 +499,7 @@ namespace HousingDistricts
                 #region info
                 case "info":
                     {
-                        if ((!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0) && ply.RealPlayer || !ply.Group.HasPermission(UseHouse))
+                        if ((!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0) && ply.RealPlayer || !ply.Group.HasPermission(UseHouse))
                         {
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
@@ -517,13 +517,13 @@ namespace HousingDistricts
                             for (int i = 0; i < house.Owners.Count; i++)
                             {
                                 var ID = house.Owners[i];
-                                try { OwnerNames += (String.IsNullOrEmpty(OwnerNames) ? "" : ", ") + TShock.Users.GetUserByID(System.Convert.ToInt32(ID)).Name; }
+                                try { OwnerNames += (String.IsNullOrEmpty(OwnerNames) ? "" : ", ") + TShock.UserAccounts.GetUserAccountByID(System.Convert.ToInt32(ID)).Name; }
                                 catch { }
                             }
                             for (int i = 0; i < house.Visitors.Count; i++)
                             {
                                 var ID = house.Visitors[i];
-                                try { VisitorNames += (String.IsNullOrEmpty(VisitorNames) ? "" : ", ") + TShock.Users.GetUserByID(System.Convert.ToInt32(ID)).Name; }
+                                try { VisitorNames += (String.IsNullOrEmpty(VisitorNames) ? "" : ", ") + TShock.UserAccounts.GetUserAccountByID(System.Convert.ToInt32(ID)).Name; }
                                 catch { }
                             }
                             ply.SendMessage("House '" + house.Name + "':", Color.LawnGreen);
@@ -549,7 +549,7 @@ namespace HousingDistricts
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
                         }
-                        if ((!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0) && ply.RealPlayer)
+                        if ((!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0) && ply.RealPlayer)
                         {
                             ply.SendErrorMessage("You must log-in to use House Protection.");
                             return;
@@ -562,11 +562,11 @@ namespace HousingDistricts
                                 var house = HTools.GetHouseByName(houseName);
                                 if (house == null) { ply.SendErrorMessage("¡No hay tal casa!"); return; }
 
-                                if (HTools.OwnsHouse(ply.User, house))
+                                if (HTools.OwnsHouse(ply.Account, house))
                                 {
                                     bool locked = HouseManager.ChangeLock(house);
                                     ply.SendMessage("House: " + house.Name + (locked ? " locked" : " unlocked"), Color.Yellow);
-                                    TShock.Log.ConsoleInfo("{0} has locked house: \"{1}\".", ply.User.Name, house.Name);
+                                    TShock.Log.ConsoleInfo("{0} has locked house: \"{1}\".",ply.Account.Name, house.Name);
                                 }
                                 else
                                     ply.SendErrorMessage("You do not own House: " + house.Name);
@@ -600,7 +600,7 @@ namespace HousingDistricts
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
                         }
-                        if ((!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0) && ply.RealPlayer)
+                        if ((!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0) && ply.RealPlayer)
                         {
                             ply.SendErrorMessage("You must log-in to use House Protection.");
                             return;
@@ -609,7 +609,7 @@ namespace HousingDistricts
                         {
                             var house = HTools.GetHouseByName(args.Parameters[1]);
                             if (house == null) { ply.SendErrorMessage("¡No hay tal casa!"); return; }
-                            if (HTools.OwnsHouse(ply.User, house.Name))
+                            if (HTools.OwnsHouse(ply.Account, house.Name))
                             {
                                 if (args.Parameters.Count > 2)
                                 {
@@ -653,7 +653,7 @@ namespace HousingDistricts
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
                         }
-                        if ((!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0) && ply.RealPlayer)
+                        if ((!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0) && ply.RealPlayer)
                         {
                             ply.SendErrorMessage("You must log-in to use House Protection.");
                             return;
@@ -661,12 +661,12 @@ namespace HousingDistricts
                         if (args.Parameters.Count > 2)
                         {
                             string playerName = args.Parameters[1];
-                            User playerID;
+                            UserAccount playerID;
                             var house = HTools.GetHouseByName(args.Parameters[2]);
                             if (house == null) { ply.SendErrorMessage("¡No hay tal casa!"); return; }
-                            if (HTools.OwnsHouse(ply.User, house) || ply.Group.HasPermission(AdminHouse))
+                            if (HTools.OwnsHouse(ply.Account, house) || ply.Group.HasPermission(AdminHouse))
                             {
-                                if ((playerID = TShock.Users.GetUserByName(playerName)) != null)
+                                if ((playerID = TShock.UserAccounts.GetUserAccountByName(playerName)) != null)
                                 {
                                     if (!HTools.CanVisitHouse(playerID.ID.ToString(), house))
                                     {
@@ -702,7 +702,7 @@ namespace HousingDistricts
                             ply.SendErrorMessage("You do not have permission to use this command!");
                             return;
                         }
-                        if ((!ply.IsLoggedIn || ply.User == null || ply.User.ID == 0) && ply.RealPlayer)
+                        if ((!ply.IsLoggedIn ||ply.Account == null ||ply.Account.ID == 0) && ply.RealPlayer)
                         {
                             ply.SendErrorMessage("You must log-in to use House Protection.");
                             return;
@@ -710,12 +710,12 @@ namespace HousingDistricts
                         if (args.Parameters.Count > 2)
                         {
                             string playerName = args.Parameters[1];
-                            User playerID;
+                            UserAccount playerID;
                             var house = HTools.GetHouseByName(args.Parameters[2]);
                             if (house == null) { ply.SendErrorMessage("¡No hay tal casa!"); return; }
-                            if (HTools.OwnsHouse(ply.User, house) || ply.Group.HasPermission(AdminHouse))
+                            if (HTools.OwnsHouse(ply.Account, house) || ply.Group.HasPermission(AdminHouse))
                             {
-                                if ((playerID = TShock.Users.GetUserByName(playerName)) != null)
+                                if ((playerID = TShock.UserAccounts.GetUserAccountByName(playerName)) != null)
                                 {
                                     if (HouseManager.DeleteVisitor(house, playerID.ID.ToString()))
                                         ply.SendMessage("Added user " + playerName + " to " + house.Name + " as a visitor.", Color.Yellow);
@@ -769,7 +769,7 @@ namespace HousingDistricts
                 if (chat.isConsole)
                 {
                     TShock.Utils.Broadcast(
-                           String.Format(TShock.Config.ChatFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix, text),
+                           String.Format(TShock.Config.Settings.ChatFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix, text),
                            tsplr.Group.R, tsplr.Group.G, tsplr.Group.B);
                     return;
                 }
@@ -785,7 +785,7 @@ namespace HousingDistricts
             {
                 if (!tsplr.mute)
                     TShock.Utils.Broadcast(
-                        String.Format(TShock.Config.ChatFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix, text),
+                        String.Format(TShock.Config.Settings.ChatFormat, tsplr.Group.Name, tsplr.Group.Prefix, tsplr.Name, tsplr.Group.Suffix, text),
                         tsplr.Group.R, tsplr.Group.G, tsplr.Group.B);
                 else
                     tsplr.SendErrorMessage("You are muted!");

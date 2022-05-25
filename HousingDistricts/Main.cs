@@ -156,16 +156,18 @@ namespace HousingDistricts
 			);
 			var SQLWriter = new SqlTableCreator(TShock.DB, TShock.DB.GetSqlType() == SqlType.Sqlite ? (IQueryBuilder)new SqliteQueryCreator() : new MysqlQueryCreator());
 			SQLWriter.EnsureTableStructure(table);
-           
-			#endregion
 
-			List<string> perms = new List<string>();
-			perms.Add("house.use");
-			perms.Add("house.lock");
-			perms.Add("house.root");
+            #endregion
 
-			#region Commands
-			Commands.ChatCommands.Add(new Command(perms, HCommands.House, "house"));
+            List<string> perms = new List<string>
+            {
+                "house.use",
+                "house.lock",
+                "house.root"
+            };
+
+            #region Commands
+            Commands.ChatCommands.Add(new Command(perms, HCommands.House, "house"));
 			Commands.ChatCommands.Add(new Command("tshock.canchat", HCommands.TellAll, "all"));
 			Commands.ChatCommands.Add(new Command("house.root", HCommands.HouseReload, "housereload"));
 			Commands.ChatCommands.Add(new Command("house.root", HCommands.HouseWipe, "housewipe"));
@@ -231,7 +233,7 @@ namespace HousingDistricts
                                 {
                                     if (house.Locked == 1 && !player.TSPlayer.Group.HasPermission("house.enterlocked"))
                                     {
-                                        if (!HTools.CanVisitHouse(player.TSPlayer.User, house))
+                                        if (!HTools.CanVisitHouse(player.TSPlayer.Account, house))
                                         {
                                             player.TSPlayer.Teleport((int)player.LastTilePos.X * 16, (int)player.LastTilePos.Y * 16);
                                             player.TSPlayer.SendMessage("Casa: '" + house.Name + "' Está bloqueado", Color.LightSeaGreen);
@@ -241,7 +243,7 @@ namespace HousingDistricts
                                             if (!player.CurHouses.Contains(house.Name) && HConfig.NotifyOnEntry)
                                             {
                                                 NewCurHouses.Add(house.Name);
-                                                if (HTools.OwnsHouse(player.TSPlayer.User, house) && HConfig.NotifySelf)
+                                                if (HTools.OwnsHouse(player.TSPlayer.Account, house) && HConfig.NotifySelf)
                                                     player.TSPlayer.SendMessage(HConfig.NotifyOnOwnHouseEntryString.Replace("$HOUSE_NAME", house.Name), Color.LightSeaGreen);
                                                 else
                                                 {
@@ -259,7 +261,7 @@ namespace HousingDistricts
                                         if (!player.CurHouses.Contains(house.Name) && HConfig.NotifyOnEntry)
                                         {
                                             NewCurHouses.Add(house.Name);
-                                            if (HTools.OwnsHouse(player.TSPlayer.User, house) && HConfig.NotifySelf)
+                                            if (HTools.OwnsHouse(player.TSPlayer.Account, house) && HConfig.NotifySelf)
                                                 player.TSPlayer.SendMessage(HConfig.NotifyOnOwnHouseEntryString.Replace("$HOUSE_NAME", house.Name), Color.LightSeaGreen);
                                             else
                                             {
@@ -300,7 +302,7 @@ namespace HousingDistricts
 								var cHouse = player.CurHouses[k];
 								if (!NewCurHouses.Contains(cHouse))
 								{
-									if (HTools.OwnsHouse(player.TSPlayer.User, cHouse))
+									if (HTools.OwnsHouse(player.TSPlayer.Account, cHouse))
 									{
 										if (HConfig.NotifySelf)
 											player.TSPlayer.SendMessage(HConfig.NotifyOnOwnHouseExitString.Replace("$HOUSE_NAME", cHouse), Color.LightSeaGreen);
@@ -329,8 +331,6 @@ namespace HousingDistricts
 		public void OnChat(ServerChatEventArgs e)
 		{
 			var Start = DateTime.Now;
-			var msg = e.Buffer;
-			var ply = e.Who;
 			var tsplr = TShock.Players[e.Who];
 			var text = e.Text;
 
@@ -343,7 +343,7 @@ namespace HousingDistricts
 
 				for (int i = 0; i < I; i++)
 				{
-					if (!HTools.OwnsHouse(tsplr.User, Houses[i]) && Houses[i].HouseArea.Intersects(new Rectangle(tsplr.TileX, tsplr.TileY, 1, 1)))
+					if (!HTools.OwnsHouse(tsplr.Account, Houses[i]) && Houses[i].HouseArea.Intersects(new Rectangle(tsplr.TileX, tsplr.TileY, 1, 1)))
 					{
 						e.Handled = true;
 						tsplr.SendErrorMessage("You can't build here!");

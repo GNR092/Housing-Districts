@@ -40,11 +40,11 @@ namespace HousingDistricts.Extensions
             try { isAdmin = ply.Group.HasPermission("house.root"); house = ply.InAreaHouse(); }
             catch { }
 
-            if (ply.User.ID != 0 && house != null)
+            if (ply.Account.ID != 0 && house != null)
             {
                 try
                 {
-                    if (house.Owners.Contains(ply.User.ID.ToString()) || isAdmin) return true;
+                    if (house.Owners.Contains(ply.Account.ID.ToString()) || isAdmin) return true;
                     else return false;
                 }
                 catch (Exception ex)
